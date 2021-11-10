@@ -53,7 +53,7 @@ public class Mixer {
     }
 
     // TODO: Implement more elegant distribution method
-    public void mixCoins(String jobcoinAddress, List<String> addresses) throws Exception {
+    public void mixCoinsDiscreet(String jobcoinAddress, List<String> addresses) throws Exception {
         History history = getJobcoinBalance(jobcoinAddress);
         float balanceRemaining = Float.parseFloat(history.getBalance());
         float depositAmount = balanceRemaining/addresses.size()/distributionInterval;
@@ -67,6 +67,19 @@ public class Mixer {
                 }
             }
             balanceRemaining = Float.parseFloat(getJobcoinBalance(jobcoinAddress).getBalance());
+        }
+    }
+
+    public void mixCoins(String jobcoinAddress, List<String> addresses) throws Exception {
+        float balanceRemaining = Float.parseFloat(getJobcoinBalance(jobcoinAddress).getBalance());
+        float depositAmount = (float)Math.floor(balanceRemaining/addresses.size());
+        float remaining = balanceRemaining % addresses.size();
+
+        for(String address: addresses) {
+            sendJobcoins(jobcoinAddress, address, String.valueOf(depositAmount));
+        }
+        if(remaining > 0 && addresses.size() > 0) {
+            sendJobcoins(jobcoinAddress, addresses.get(addresses.size() - 1), String.valueOf(remaining));
         }
     }
 
